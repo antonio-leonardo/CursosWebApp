@@ -15,15 +15,47 @@ namespace Cursos.WebApp.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<List<CourseDto>> GetById(Guid id)
+        public ActionResult<CourseDto> GetById(Guid id)
         {
-            return Ok(_courseService.GetById(id));
+            CourseDto result = null;
+            try
+            {
+                result = _courseService.GetById(id);
+            }
+            catch (Exception ex)
+            {
+                return Problem($"Não possível recuperar os dados do curso pelo id {id} devido ao seguinte erro: {ex.Message}", null, 500, "Erro");
+            }
+            if(result == null)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         [HttpGet]
         public ActionResult<List<CourseDto>> GetAll()
         {
-            return Ok(_courseService.GetAll());
+            List<CourseDto> result = null;
+            try
+            {
+                result = _courseService.GetAll();
+            }
+            catch (Exception ex)
+            {
+                return Problem($"Não possível recuperar os dados de todos os cursos devido ao seguinte erro: {ex.Message}", null, 500, "Erro");
+            }
+            if (result == null || result.Count == 0)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         [HttpPost]
