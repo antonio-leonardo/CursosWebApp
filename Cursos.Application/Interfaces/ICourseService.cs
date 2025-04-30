@@ -1,11 +1,13 @@
 ﻿using Cursos.Application.Dto;
-using Cursos.Domain.Domain.Models;
 
 namespace Cursos.Application.Interfaces
 {
     public interface ICourseService
     {
+        CourseDto GetById(Guid courseId);
         List<CourseDto> GetAll();
-        Course Register(CourseDto courseDto);
+        Guid Register(CourseDto courseDto);
+        void Update(Guid courseId, CourseDto courseDto);
+        void Delete(Guid courseId);
     }
 }

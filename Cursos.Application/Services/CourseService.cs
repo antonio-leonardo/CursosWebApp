@@ -24,99 +24,177 @@ namespace Cursos.Application.Services
             _mapper = mapper;
         }
 
+        public void Delete(Guid courseId)
+        {
+            _cursoRepository.Delete(courseId);
+            _uow.SaveAllAsync().GetAwaiter().GetResult();
+        }
+
         public List<CourseDto> GetAll()
         {
             return this._mapper.Map<List<CourseDto>>(_cursoRepository.GetAll());
         }
 
-        public Course Register(CourseDto courseDto)
+        public CourseDto GetById(Guid courseId)
         {
-            if(null == courseDto || (string.IsNullOrWhiteSpace(courseDto.CourseTitle) && string.IsNullOrWhiteSpace(courseDto.InstructorName) && string.IsNullOrWhiteSpace(courseDto.Description) && courseDto.Workload == 0))
-            {
-                string msg = "Não é posssível fazer persistencia de valores vazios";
-                Log.Error(msg);
-                throw new InvalidOperationException(msg);
-            }
+            return this._mapper.Map<CourseDto>(_cursoRepository.Get(courseId));
+        }
 
-            StringBuilder notes = new StringBuilder();
-            if(null != _cursoRepository.Get(courseDto.CourseTitle, courseDto.KnowledgePlatform, courseDto.InstructorName))
+        public Guid Register(CourseDto courseDto)
+        {
+            bool needRollBack = false;
+            Course course = null;
+            try
             {
-                string msg = "O curso já está cadastrado na base de dados";
-                Log.Error(msg);
-                throw new InvalidOperationException(msg);
-            }
+                if (null == courseDto || (string.IsNullOrWhiteSpace(courseDto.CourseTitle) && string.IsNullOrWhiteSpace(courseDto.InstructorName) && string.IsNullOrWhiteSpace(courseDto.Description) && courseDto.Workload == 0))
+                {
+                    string msg = "Não é posssível fazer persistencia de valores vazios";
+                    Log.Error(msg);
+                    throw new InvalidOperationException(msg);
+                }
 
-            Course course = this._mapper.Map<Course>(courseDto);
-            if (course.KnowledgePlatform == null)
-            {
-                string msg = "É necessário preencher a plataforma de ensino";
-                Log.Error(msg);
-                throw new InvalidOperationException(msg);
-            }
+                StringBuilder notes = new StringBuilder();
+                if (null != _cursoRepository.Get(courseDto.CourseTitle, courseDto.KnowledgePlatform, courseDto.InstructorName))
+                {
+                    string msg = "O curso já está cadastrado na base de dados";
+                    Log.Error(msg);
+                    throw new InvalidOperationException(msg);
+                }
 
-            if (course.Instructor == null)
-            {
-                string msg = "É necessário ter um professor associado ao curso";
-                Log.Error(msg);
-                throw new InvalidOperationException(msg);
-            }
-                
-            Log.Info("Verifica se já existe plataforma de ensino cadastrada");
-            KnowledgePlatform KnowledgePlatform = _knowledgePlatformRepository.Get(course.KnowledgePlatform.Name);
-            if(KnowledgePlatform == null)
-            {
-                Log.Info($"Não existe plataforma de ensino com Name {course.KnowledgePlatform.Name} cadastrada, será registrada uma nova");
-                course.KnowledgePlatform.Id = Guid.NewGuid();
-                course.KnowledgePlatform.CreatedDate = DateTime.Now;
-                _knowledgePlatformRepository.Register(course.KnowledgePlatform);
-                course.KnowledgePlatformId = course.KnowledgePlatform.Id;
-            }
-            else
-            {
-                Log.Info($"Já existe plataforma de ensino cadastrada com o Name dado: {course.KnowledgePlatform.Name}");
-                course.KnowledgePlatformId = KnowledgePlatform.Id;
-            }
+                course = this._mapper.Map<Course>(courseDto);
+                if (course.KnowledgePlatform == null)
+                {
+                    string msg = "É necessário preencher a plataforma de ensino";
+                    Log.Error(msg);
+                    throw new InvalidOperationException(msg);
+                }
 
-            Log.Info("Verifica se já existe professor(a) cadastrado(a)");
-            if (string.IsNullOrWhiteSpace(course.Instructor.CompleteName))
-            {
-                notes.Append("Ainda não existe professor para este curso.");
-            }
-            else if(_instructorRepository.Get(course.Instructor.CompleteName) == null)
-            {
-                Log.Info($"Não existe professor(a) com nome {course.Instructor.CompleteName} cadastrado(a), será registrado(a) um(a) novo(a)");
-                course.Instructor.Id = Guid.NewGuid();
-                course.Instructor.CreatedDate = DateTime.Now;
-                _instructorRepository.Register(course.Instructor);
-                course.InstructorId = course.Instructor.Id;
-            }
-            else
-            {
-                Log.Info($"Já existe Instructor(a) cadastrado(a) com o Name dado: {course.KnowledgePlatform.Name}");
-                course.InstructorId = _instructorRepository.Get(course.Instructor.CompleteName).Id;
-            }
+                if (course.Instructor == null)
+                {
+                    string msg = "É necessário ter um professor associado ao curso";
+                    Log.Error(msg);
+                    throw new InvalidOperationException(msg);
+                }
 
-            if (string.IsNullOrWhiteSpace(course.Description))
-            {
-                notes.Append("Ainda não existe descrição definida para este curso.");
-            }
+                Log.Info("Verifica se já existe plataforma de ensino cadastrada");
+                KnowledgePlatform KnowledgePlatform = _knowledgePlatformRepository.Get(course.KnowledgePlatform.Name);
+                if (KnowledgePlatform == null)
+                {
+                    Log.Info($"Não existe plataforma de ensino com Name {course.KnowledgePlatform.Name} cadastrada, será registrada uma nova");
+                    course.KnowledgePlatform.Id = Guid.NewGuid();
+                    course.KnowledgePlatform.CreatedDate = DateTime.Now;
+                    _knowledgePlatformRepository.Register(course.KnowledgePlatform);
+                    needRollBack = true;
+                    course.KnowledgePlatformId = course.KnowledgePlatform.Id;
+                }
+                else
+                {
+                    Log.Info($"Já existe plataforma de ensino cadastrada com o Name dado: {course.KnowledgePlatform.Name}");
+                    course.KnowledgePlatformId = KnowledgePlatform.Id;
+                }
 
-            if(course.Workload == null)
-            {
-                notes.Append("Ainda não existe carga-horária definida para este curso.");
-            }
+                Log.Info("Verifica se já existe professor(a) cadastrado(a)");
+                if (string.IsNullOrWhiteSpace(course.Instructor.CompleteName))
+                {
+                    notes.Append("Ainda não existe professor para este curso.");
+                }
+                else if (_instructorRepository.Get(course.Instructor.CompleteName) == null)
+                {
+                    Log.Info($"Não existe professor(a) com nome {course.Instructor.CompleteName} cadastrado(a), será registrado(a) um(a) novo(a)");
+                    course.Instructor.Id = Guid.NewGuid();
+                    course.Instructor.CreatedDate = DateTime.Now;
+                    _instructorRepository.Register(course.Instructor);
+                    needRollBack = true;
+                    course.InstructorId = course.Instructor.Id;
+                }
+                else
+                {
+                    Log.Info($"Já existe Instructor(a) cadastrado(a) com o Name dado: {course.KnowledgePlatform.Name}");
+                    course.InstructorId = _instructorRepository.Get(course.Instructor.CompleteName).Id;
+                }
 
-            if(notes.Length != 0)
-            {
-                course.Notes = notes.ToString();
-            }
+                if (string.IsNullOrWhiteSpace(course.Description))
+                {
+                    notes.Append("Ainda não existe descrição definida para este curso.");
+                }
 
-            Log.Info("Geração de Id e Data de Criação");
-            course.Id = Guid.NewGuid();
-            course.CreatedDate = DateTime.Now;
-            _cursoRepository.Register(course);
-            _uow.SaveAllAsync().GetAwaiter().GetResult();
-            return course;
+                if (course.Workload == null)
+                {
+                    notes.Append("Ainda não existe carga-horária definida para este curso.");
+                }
+
+                if (notes.Length != 0)
+                {
+                    course.Notes = notes.ToString();
+                }
+
+                Log.Info("Geração de Id e Data de Criação");
+                course.Id = Guid.NewGuid();
+                course.CreatedDate = DateTime.Now;
+                _cursoRepository.Register(course);
+                _uow.SaveAllAsync().GetAwaiter().GetResult();
+            }
+            catch(Exception ex)
+            {
+                if(needRollBack)
+                    _uow.RollBackAsync().GetAwaiter().GetResult();
+                throw;
+            }
+            return course.Id;
+        }
+
+        public void Update(Guid courseId, CourseDto courseDto)
+        {
+            bool needRollBack = false;
+            try
+            {
+                Course course = this._mapper.Map<Course>(courseDto);
+                course.Id = courseId;
+
+                Log.Info("Verifica se já existe plataforma de ensino cadastrada");
+                KnowledgePlatform KnowledgePlatform = _knowledgePlatformRepository.Get(course.KnowledgePlatform.Name);
+                if (KnowledgePlatform == null)
+                {
+                    Log.Info($"Não existe plataforma de ensino com Name {course.KnowledgePlatform.Name} cadastrada, será registrada uma nova");
+                    course.KnowledgePlatform.Id = Guid.NewGuid();
+                    course.KnowledgePlatform.CreatedDate = DateTime.Now;
+                    _knowledgePlatformRepository.Register(course.KnowledgePlatform);
+                    needRollBack = true;
+                    course.KnowledgePlatformId = course.KnowledgePlatform.Id;
+                }
+                else
+                {
+                    Log.Info($"Já existe plataforma de ensino cadastrada com o Name dado: {course.KnowledgePlatform.Name}");
+                    course.KnowledgePlatformId = KnowledgePlatform.Id;
+                }
+
+                if (_instructorRepository.Get(course.Instructor.CompleteName) == null)
+                {
+                    Log.Info($"Não existe professor(a) com nome {course.Instructor.CompleteName} cadastrado(a), será registrado(a) um(a) novo(a)");
+                    course.Instructor.Id = Guid.NewGuid();
+                    course.Instructor.CreatedDate = DateTime.Now;
+                    _instructorRepository.Register(course.Instructor);
+                    needRollBack = true;
+                    course.InstructorId = course.Instructor.Id;
+                }
+                else
+                {
+                    Log.Info($"Já existe Instructor(a) cadastrado(a) com o Name dado: {course.KnowledgePlatform.Name}");
+                    course.InstructorId = _instructorRepository.Get(course.Instructor.CompleteName).Id;
+                }
+
+                DateTime now = DateTime.Now;
+                course.Notes = $"Atualizado em {now.ToString("dd/MM/yyyy")}";
+
+                _cursoRepository.Update(course);
+                _uow.SaveAllAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                if (needRollBack)
+                    _uow.RollBackAsync().GetAwaiter().GetResult();
+                throw;
+            }
         }
     }
 }
