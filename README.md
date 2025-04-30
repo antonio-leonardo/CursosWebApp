@@ -13,11 +13,11 @@ Abrir prompt no raiz do projeto e executar o comandos abaixo para gerar a imagem
 ```console
 docker build -t cursoswebapp .
 ```
-Caso o objetivo seja executar o projeto Docker em modo Desenvolvimento, a sugestão é utilzar o comando abaixo:
+Caso o objetivo seja executar o projeto Docker em modo Desenvolvimento (com Swagger visível e Banco de Dados em Memória), a sugestão é utilzar o comando abaixo:
 ```console
 docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Development cursoswebapp
 ```
-Caso você possua uma instância de Banco de Dados e gostaria de simular um ambiente Staging, Pré-Prod ou Prd, é necessário utilizar a linha de comando abaixo (lembre-se de incluir a string de conexão no arquivo appsettings.Production.json):
+Caso você possua uma instância de Banco de Dados e gostaria de simular um ambiente Staging, Pré-Prod ou Prd, é necessário utilizar a linha de comando abaixo (lembre-se de incluir a string de conexão no arquivo appsettings.Production.json e não haverá mais o Swagger):
 ```console
 docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Production cursoswebapp
 ```
