@@ -2,7 +2,7 @@
 Web Api para cadastro e visualização de cursos
 
 ## Para depurar (Visual Studio)
-Basta definir o projeto asp.net core Cursos.WebApp e dar o play; no modo de depuração será criado uma database em memória.
+Basta definir o projeto asp.net core Cursos.WebApp como "Startup Project" e dar o play; no modo de depuração será criado uma database em memória.
 
 ## Testes Automatizados de Integração (xUnit)
 Basta apertar o play no projeto Cursos.WebApp.IntegrationTest que será gerado um Banco de Dados em memória e executará as asserções.
