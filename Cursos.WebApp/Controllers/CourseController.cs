@@ -23,11 +23,18 @@ namespace Cursos.WebApp.Controllers
         [HttpPost]
         public IActionResult Add([FromBody] CourseDto course)
         {
-            if (course == null)
+            if (course == null || (string.IsNullOrWhiteSpace(course.CourseTitle) && string.IsNullOrWhiteSpace(course.InstructorName) && string.IsNullOrWhiteSpace(course.Description) && string.IsNullOrWhiteSpace(course.KnowledgePlatform)))
             {
-                return Problem("Não pode inserir dados nulos", null, 400, "");
+                return Problem("Não pode inserir dados nulos", null, 400, "Erro");
             }
-            return Ok(this._courseService.Register(course));
+            try
+            {
+                return Ok(this._courseService.Register(course));
+            }
+            catch (Exception ex)
+            {
+                return Problem($"Não possível fazer inserção do curso devido ao seguinte erro: {ex.Message}", null, 500, "Erro");
+            }
         }
     }
 }

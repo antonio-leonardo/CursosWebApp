@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cursos.WebApp", "Cursos.WebApp\Cursos.WebApp.csproj", "{671D0254-66E5-42F9-9A14-ADFFD9C2D4FA}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cursos.IoC", "Cursos.IoC\Cursos.IoC.csproj", "{1ED4CB9F-1D3B-4C9B-AE61-92341747DFE1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cursos.Application", "Cursos.Application\Cursos.Application.csproj", "{C284234B-1B43-4D2E-96B8-7A52AF25F391}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cursos.WebApp.IntegrationTest", "Cursos.WebApp.IntegrationTest\Cursos.WebApp.IntegrationTest.csproj", "{09327EDB-DB28-44DB-963B-31BE5C34C45D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{C284234B-1B43-4D2E-96B8-7A52AF25F391}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C284234B-1B43-4D2E-96B8-7A52AF25F391}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C284234B-1B43-4D2E-96B8-7A52AF25F391}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09327EDB-DB28-44DB-963B-31BE5C34C45D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09327EDB-DB28-44DB-963B-31BE5C34C45D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09327EDB-DB28-44DB-963B-31BE5C34C45D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09327EDB-DB28-44DB-963B-31BE5C34C45D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

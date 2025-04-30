@@ -2,36 +2,43 @@ using Cursos.Application.Helpers;
 using Cursos.CrossCutting;
 using Cursos.IoC.ServiceCollectionExtensions;
 using Cursos.WebApp.Extensions;
-using Microsoft.Extensions.Hosting;
 
-LoggingSingleton.InitializeLog();
-Logging log = LoggingSingleton.GetLogging();
-var builder = WebApplication.CreateBuilder(args);
-builder.Host.ConfigureAppSettings();
-
-// Add services to the container.
-builder.Host.ConfigureServices((context, services) =>
+namespace Cursos.WebApp
 {
-    services.RegisterServices(context.Configuration, log).AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
-});
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            LoggingSingleton.InitializeLog();
+            Logging log = LoggingSingleton.GetLogging();
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Host.ConfigureAppSettings();
+            
+            builder.Host.ConfigureServices((context, services) =>
+            {
+                var env = context.HostingEnvironment;
+                services.RegisterServices(context.Configuration, builder.Environment, log).AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
+            });
+            builder.Services.AddControllers();
 
-var app = builder.Build();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+            var app = builder.Build();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.Run();
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
