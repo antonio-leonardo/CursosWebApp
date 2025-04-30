@@ -1,5 +1,5 @@
 # CursosWebApp
-Web Api para cadastro e visualização de cursos
+Asp.NET Core Web Api v9.0 para cadastro e visualização de cursos
 
 ## Para depurar (Visual Studio)
 Basta definir o projeto asp.net core Cursos.WebApp como "Startup Project" e dar o play; no modo de depuração será criado uma database em memória.
