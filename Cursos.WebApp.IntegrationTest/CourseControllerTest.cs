@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Json;
+using Cursos.WebApp.Extensions;
 
 namespace Cursos.WebApp.IntegrationTest
 {
@@ -17,40 +18,7 @@ namespace Cursos.WebApp.IntegrationTest
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var platform = new KnowledgePlatform
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Pluralsight",
-                    CreatedDate = DateTime.UtcNow
-                };
-                db.KnowledgePlatforms.Add(platform);
-
-                var instructor = new Instructor
-                {
-                    Id = Guid.NewGuid(),
-                    CompleteName = "Antonio Leonardo",
-                    CreatedDate = DateTime.UtcNow
-                };
-                db.Instructors.Add(instructor);
-
-                db.SaveChanges();
-
-                var course = new Course
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Testes Integrados com C#",
-                    Description = "Testando ASP.NET Core Web APIs utilizando xUnit",
-                    Workload = 20,
-                    Notes = "Intro-level course",
-                    CreatedDate = DateTime.UtcNow,
-                    KnowledgePlatformId = platform.Id,
-                    InstructorId = instructor.Id,
-                    KnowledgePlatform = platform,
-                    Instructor = instructor
-                };
-                db.Courses.Add(course);
-
-                db.SaveChanges();
+                db.CreateInitialDevelopmentData();
             }
         }
 

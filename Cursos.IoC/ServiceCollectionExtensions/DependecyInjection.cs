@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Cursos.IoC.ServiceCollectionExtensions
 {
@@ -25,7 +26,7 @@ namespace Cursos.IoC.ServiceCollectionExtensions
             services.AddScoped<ICourseService, CourseService>();
 
             log.Info("Adição de contexto de Base de Dados");
-            if (env.EnvironmentName != "Testing")
+            if(env.IsProduction() || env.IsStaging())
             {
                 log.Info("Captura de connection string");
                 var connectionString = config.GetConnectionString("CoursesDb");
